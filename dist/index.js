@@ -32249,6 +32249,7 @@ async function run() {
       "source-repo": core.getInput("source-repo"),
       "source-ref": core.getInput("source-ref"),
       "source-sha": core.getInput("source-sha") || core.getInput("source-ref"),
+      "source-token": core.getInput("source-token"),
       "source-paths": core.getInput("source-paths"),
       consumers: core.getInput("consumers"),
       "destination-base": core.getInput("destination-base"),
