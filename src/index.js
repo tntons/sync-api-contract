@@ -34,9 +34,16 @@ function parseSourcePaths(input) {
 }
 
 function renderTemplate(template, vars) {
-  return template.replace(/\${{\s*inputs\.([a-z0-9-]+)\s*}}/gi, (_, key) =>
-    vars[key] == null ? "" : String(vars[key])
-  );
+  return template
+    // GitHub Actions ${{ inputs.X }} style (works in workflow YAML).
+    .replace(/\${{\s*inputs\.([a-z0-9-]+)\s*}}/gi, (_, key) =>
+      vars[key] == null ? "" : String(vars[key])
+    )
+    // Plain {X} placeholders (works in action.yml defaults where the
+    // ${{ inputs.X }} form is rejected).
+    .replace(/\{([a-z0-9-]+)\}/gi, (_, key) =>
+      vars[key] == null ? "" : String(vars[key])
+    );
 }
 
 async function run() {

@@ -47,7 +47,7 @@ inputs:
   pr-title:
     description: Title template for the sync PR.
     required: false
-    default: 'chore(contract): sync from ${{ inputs.source-repo }}@${{ inputs.source-ref }}'
+    default: 'chore(contract): sync from {source-repo}@{source-ref}'
   pr-body:
     description: Body template for the sync PR.
     required: false
@@ -55,8 +55,9 @@ inputs:
 
       This PR was opened automatically by the sync-api-contract action.
 
-      Source: ${{ inputs.source-repo }}@${{ inputs.source-ref }}
-      Destination base: ${{ inputs.destination-base }}
+      Source: {source-repo}@{source-ref}
+      Destination base: {destination-base}
+
 
       Please review the diff and run the project standard CI before merging.
       If the contract change is intentional, approve and merge. If not, close
@@ -72,7 +73,7 @@ inputs:
   commit-message:
     description: Commit message used when updating the vendor copy.
     required: false
-    default: 'chore(contract): sync from ${{ inputs.source-repo }}@${{ inputs.source-ref }}'
+    default: 'chore(contract): sync from {source-repo}@{source-ref}'
   fail-on-error:
     description: >-
       If true, the action fails the workflow when any consumer cannot be
