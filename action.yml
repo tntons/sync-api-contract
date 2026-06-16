@@ -1,0 +1,96 @@
+name: sync-api-contract
+description: >-
+  Propagates a shared API contract (source repo) into one or more consumer
+  repositories by opening vendor/ pull requests. Designed for the
+  WriterBridge platform but works with any source-of-truth repo that
+  exposes plain text/typescript files.
+author: Saharat Nuamchit
+
+branding:
+  icon: package
+  color: blue
+
+inputs:
+  source-repo:
+    description: >-
+      Repository (owner/name) that owns the source contract. Defaults to the
+      repository that triggered the workflow.
+    required: false
+    default: ${{ github.repository }}
+  source-ref:
+    description: Git ref (branch/tag/sha) in the source repo to read files from.
+    required: false
+    default: ${{ github.ref }}
+  source-paths:
+    description: >-
+      Comma-separated list of paths inside the source repo to copy, relative
+      to the repo root. Each path is copied as-is into the corresponding
+      destination-path on the consumer.
+    required: true
+  consumers:
+    description: >-
+      Newline-separated list of consumer repos in the form
+      `owner/name:branch:token-secret:commit-author`. The token-secret is the
+      name of the GitHub Actions secret holding a token with write access to
+      that consumer. The commit-author is `Name <email>` for the PR commits.
+      Example:
+        tntons/writer-frontend:main:CONSUMER_TOKEN_FRONTEND:Frontend Bot <bot@example.com>
+        tntons/writer-backend:main:CONSUMER_TOKEN_BACKEND:Backend Bot <bot@example.com>
+    required: true
+  destination-base:
+    description: >-
+      Base path inside each consumer repo. Files from source-paths are copied
+      under this path. For example, if destination-base is `vendor/api-contract`
+      and source-paths is `index.js,index.d.ts`, the consumer ends up with
+      `vendor/api-contract/index.js` and `vendor/api-contract/index.d.ts`.
+    required: true
+  pr-title:
+    description: Title template for the sync PR.
+    required: false
+    default: 'chore(contract): sync from ${{ inputs.source-repo }}@${{ inputs.source-ref }}'
+  pr-body:
+    description: Body template for the sync PR.
+    required: false
+    default: |-
+
+      This PR was opened automatically by the sync-api-contract action.
+
+      Source: ${{ inputs.source-repo }}@${{ inputs.source-ref }}
+      Destination base: ${{ inputs.destination-base }}
+
+      Please review the diff and run the project standard CI before merging.
+      If the contract change is intentional, approve and merge. If not, close
+      the PR and the source repo should be reverted.
+  pr-branch:
+    description: Branch name template for the sync PR.
+    required: false
+    default: 'chore/sync-api-contract'
+  pr-label:
+    description: Label applied to sync PRs (created if missing).
+    required: false
+    default: 'api-contract-sync'
+  commit-message:
+    description: Commit message used when updating the vendor copy.
+    required: false
+    default: 'chore(contract): sync from ${{ inputs.source-repo }}@${{ inputs.source-ref }}'
+  fail-on-error:
+    description: >-
+      If true, the action fails the workflow when any consumer cannot be
+      synced. If false, errors are logged and the action exits 0 so a
+      single broken consumer does not block the others.
+    required: false
+    default: 'true'
+
+outputs:
+  prs-opened:
+    description: Newline-separated list of consumer repos where a sync PR was opened.
+  prs-updated:
+    description: Newline-separated list of consumer repos where an existing sync PR was updated.
+  prs-closed:
+    description: Newline-separated list of consumer repos where the sync PR was closed (no diff).
+  errors:
+    description: Newline-separated list of consumer repos that failed to sync.
+
+runs:
+  using: node20
+  main: src/index.js
