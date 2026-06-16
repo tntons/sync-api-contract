@@ -34,6 +34,9 @@ async function fetchSource(path) {
     } catch (_) {
       // gh CLI not available or not authed; proceed anonymously (will 404
       // for private repos).
+      if (process.env.GITHUB_ACTIONS) {
+        console.error("note: no GITHUB_TOKEN and no gh CLI auth; using anonymous requests");
+      }
     }
   }
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
