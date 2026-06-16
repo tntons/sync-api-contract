@@ -77,11 +77,13 @@ async function run() {
       throw new Error("consumers must list at least one consumer");
     }
 
-    // The source's token is the default GITHUB_TOKEN. Consumers each use
-    // their own secret.
-    const sourceToken = process.env.GITHUB_TOKEN;
+    // The source token. Consumers each use their own secret.
+    const sourceToken = inputs["source-token"] || process.env.GITHUB_TOKEN;
     if (!sourceToken) {
-      throw new Error("GITHUB_TOKEN is not set; required to read the source repo");
+      throw new Error(
+        "source-token is not set. Pass `secrets.GITHUB_TOKEN` (or another " +
+        "token with read access to the source repo) via the source-token input."
+      );
     }
     const sourceOctokit = github.getOctokit(sourceToken);
 

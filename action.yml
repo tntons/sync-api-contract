@@ -17,6 +17,12 @@ inputs:
       repository that triggered the workflow.
     required: false
     default: ${{ github.repository }}
+  source-token:
+    description: >-
+      Token used to read the source repo. Pass `secrets.GITHUB_TOKEN` from
+      the workflow to use the default per-run token.
+    required: false
+    default: ''
   source-ref:
     description: Git ref (branch/tag/sha) in the source repo to read files from.
     required: false
