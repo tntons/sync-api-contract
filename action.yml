@@ -21,6 +21,13 @@ inputs:
     description: Git ref (branch/tag/sha) in the source repo to read files from.
     required: false
     default: ${{ github.ref }}
+  source-sha:
+    description: >-
+      Full SHA of the source commit being synced. Falls back to the source-ref
+      when the caller does not provide it. Used in default PR/commit
+      templates.
+    required: false
+    default: ""
   source-paths:
     description: >-
       Comma-separated list of paths inside the source repo to copy, relative
