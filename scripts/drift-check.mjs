@@ -24,9 +24,19 @@ function decodeBase64(content) {
 
 async function fetchSource(path) {
   const url = `https://api.github.com/repos/${REPO}/contents/${path}?ref=${ref}`;
-  const headers = existsSync(".gh-token")
-    ? { Authorization: `token ${(await import("node:fs/promises")).readFile(".gh-token", "utf8")}` }
-    : {};
+  // Try the GITHUB_TOKEN env var first (set automatically in CI), then
+  // gh CLI's stored token, then anonymous.
+  let token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  if (!token) {
+    try {
+      const { execFileSync } = await import("node:child_process");
+      token = execFileSync("gh", ["auth", "token"], { encoding: "utf8" }).trim();
+    } catch (_) {
+      // gh CLI not available or not authed; proceed anonymously (will 404
+      // for private repos).
+    }
+  }
+  const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(url, { headers });
   if (res.status === 404) {
     throw new Error(`Source file not found: ${REPO}@${ref}:${path}`);
