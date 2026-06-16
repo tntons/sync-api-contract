@@ -109,10 +109,11 @@ async function findExistingPr(octokit, owner, repo, branch, label) {
 }
 
 function parseAuthor(author) {
-  // "Name <email>" -> { name, email }
-  const m = author.match(/^\s*([^<]+?)\s*<([^>]+)>\s*$/);
+  // Strip surrounding quotes if present, then match "Name <email>".
+  const cleaned = author.replace(/^\s*["\']|["\']\s*$/g, "");
+  const m = cleaned.match(/^\s*([^<]+?)\s*<([^>]+)>\s*$/);
   if (!m) {
-    throw new Error(`commit-author must be in the form "Name <email>": ${author}`);
+    throw new Error(`commit-author must be in the form \"Name <email>\": ${author}`);
   }
   return { name: m[1].trim(), email: m[2].trim() };
 }

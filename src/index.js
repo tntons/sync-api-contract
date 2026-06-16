@@ -14,11 +14,15 @@ function parseList(input, separator) {
 
 function parseConsumers(input) {
   // Each line: owner/name:branch:token-secret:commit-author
-  return parseList(input, "\n").map((line) => {
+  return parseList(input, "\n").map((rawLine) => {
+    // Strip surrounding double quotes the workflow may add to the author
+    // field, since GitHub Actions YAML requires quoting when the value
+    // contains a colon or angle bracket.
+    const line = rawLine.replace(/^\s*"|"\s*$/g, "");
     const [repo, branch = "main", tokenSecret, author = "sync-api-contract <actions@github.com>"] = line.split(":");
     if (!repo || !tokenSecret) {
       throw new Error(
-        `Invalid consumer line (expected owner/name:branch:token-secret:author): ${line}`
+        `Invalid consumer line (expected owner/name:branch:token-secret:author): ${rawLine}`
       );
     }
     const token = process.env[tokenSecret];
